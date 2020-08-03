@@ -1,0 +1,26 @@
+[
+  {
+    "Execute": "Y",
+    "Test": "Functional",
+    "TestMethods": "test1",
+    "TestClass": "EcomTest"
+  },
+  {
+    "Execute": "Y",
+    "Test": "Regression",
+    "TestMethods": "test2",
+    "TestClass": "EcomTest"
+  },
+  {
+    "Execute": "N",
+    "Test": "Functional",
+    "TestMethods": "test1",
+    "TestClass": "EcomTest"
+  },
+  {
+    "Execute": "N",
+    "Test": "Regression",
+    "TestMethods": "test2",
+    "TestClass": "EcomTest"
+  }
+]
