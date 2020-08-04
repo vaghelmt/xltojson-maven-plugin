@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import static com.meetmitul.Utils.loadDataIntoMap;
 import static org.apache.poi.xssf.usermodel.XSSFCell.*;
 
 import java.io.*;
@@ -65,8 +66,6 @@ public class JsonConverter
 
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-
-        // your directory
         File f = new File(resources.get(0).getDirectory() + "/testdata");
         File[] matchingFiles = f.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -74,7 +73,6 @@ public class JsonConverter
             }
         });
 
-        System.out.println(matchingFiles[0]);
 
         Arrays.stream(matchingFiles)
                 .forEach((file) -> {
@@ -86,17 +84,13 @@ public class JsonConverter
 
     private void convertToJSON(File file) {
         try {
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            char c1 = (char) fis.read();
-            System.out.println(c1);
 
             File directory = new File(resources.get(0).getDirectory() + "/testdatajson");
             if (!directory.exists()) {
                 directory.mkdir();
             }
             Gson gson = new Gson();
-            Writer writer = new FileWriter(resources.get(0).getDirectory() + "/testdatajson/" + file.getName().replaceFirst("[.][^.]+$", "")+ ".json");
+            Writer writer = new FileWriter(resources.get(0).getDirectory() + "/testdatajson/" + file.getName().replaceFirst("[.][^.]+$", "") + ".json");
             gson.toJson(loadDataIntoMap(file.toString(), null), writer);
             writer.close();
         } catch (FileNotFoundException e) {
@@ -106,82 +100,5 @@ public class JsonConverter
         }
     }
 
-    public static List<HashMap<String, String>> loadDataIntoMap(String filePath, String methodName) {
-        Workbook wb = null;           //initialize Workbook null
-        try {
-            //reading data from a file in the form of bytes
-            FileInputStream fis = new FileInputStream(filePath);
-            //constructs an XSSFWorkbook object, by buffering the whole stream into the memory
-            wb = new XSSFWorkbook(fis);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
-        List<HashMap<String, String>> dataMap = new ArrayList<HashMap<String, String>>();
-
-
-        List<String> headerList = new ArrayList<String>();
-
-        Sheet sheet = null;
-
-        if (methodName != null) {
-            sheet = wb.getSheet(methodName);
-        }
-
-        sheet = wb.getSheetAt(0);
-
-
-        Row headerRow = sheet.getRow(0);
-
-        for (Cell mycell : headerRow) {
-            switch (mycell.getCellType()) {
-                case NUMERIC:
-                    headerList.add(String.valueOf(mycell.getNumericCellValue()));
-                    break;
-                case STRING:
-                    headerList.add(mycell.getStringCellValue());
-                    break;
-                case BOOLEAN:
-                    headerList.add(String.valueOf(mycell.getBooleanCellValue()));
-                    break;
-                default:
-            }
-
-
-        }
-
-        for (Row myrow : sheet) {
-            if (myrow.getPhysicalNumberOfCells() > 0 && myrow.getRowNum() > 0) {
-                HashMap<String, String> dataRow = new HashMap<String, String>();
-                if (myrow.getRowNum() > 0) {
-                    String temp = null;
-                    for (int i = 0; i < myrow.getPhysicalNumberOfCells(); i++) {
-                        switch (myrow.getCell(i).getCellType()) {
-                            case NUMERIC:
-                                temp = String.valueOf(myrow.getCell(i).getNumericCellValue());
-                                break;
-                            case STRING:
-                                temp = myrow.getCell(i).getStringCellValue();
-                                break;
-                            case BOOLEAN:
-                                temp = String.valueOf(myrow.getCell(i).getBooleanCellValue());
-                                break;
-                            default:
-                        }
-                        if(temp!=null){
-                            dataRow.put(headerList.get(i), temp);
-                        }
-
-                    }
-
-                }
-                dataMap.add(dataRow);
-            }
-        }
-
-        return dataMap;
-    }
 
 }
